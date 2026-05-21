@@ -2,26 +2,36 @@
 
 > **Turn vague prompts into powerful ones — instantly.**
 
-PromptPolish is an AI-powered prompt engineering tool that takes rough, vague, or incomplete prompts and rewrites them into clear, specific, and highly effective instructions ready for any LLM (ChatGPT, Claude, Gemini, and more).
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)](https://react.dev/)
+[![Three.js](https://img.shields.io/badge/Three.js-r184-black?logo=threedotjs)](https://threejs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Edge%20Functions-3ecf8e?logo=supabase&logoColor=white)](https://supabase.com/)
+[![TanStack](https://img.shields.io/badge/TanStack-Start-f97316?logo=react)](https://tanstack.com/start)
+
+PromptPolish is an AI-powered prompt engineering tool that transforms rough, vague, or incomplete prompts into clear, specific, and highly effective instructions — ready for any LLM (ChatGPT, Claude, Gemini, and more).
 
 ---
 
 ## 🖼️ Preview
 
-A cinematic **typewriter intro scene** greets users on load, followed by a full-screen **photorealistic animated sky** background powered by GSAP Ken Burns animation. The app sits on top with glassmorphism-style cards.
+A cinematic **typewriter intro scene** greets users on load, followed by a full-screen **photorealistic animated sky** background powered by GSAP Ken Burns animation. The main UI floats on top with glassmorphism-style cards.
 
 ---
 
 ## 🚀 Features
 
-- **AI Prompt Optimization** — Rewrites prompts into clean, professional prose using Google Gemini
-- **5 Prompt Categories** — General, Coding, Creative, Research, Business
-- **Real-time Validation** — Character counter with warnings (10–2500 character limit)
-- **One-click Copy** — Copy optimized prompt to clipboard instantly
-- **Character Count** — Shows how many characters the optimized prompt contains
-- **Cinematic Intro Scene** — Three.js + GSAP typewriter animation on first load
-- **Animated Sky Background** — AI-generated photorealistic sky with GSAP Ken Burns motion
-- **Fully Responsive** — Works across desktop, tablet, and mobile
+| Feature | Description |
+|---|---|
+| **AI Prompt Optimization** | Rewrites prompts into clean, professional prose using Google Gemini |
+| **5 Prompt Categories** | General, Coding, Creative, Research, Business |
+| **Real-time Validation** | Character counter with warnings (10–2500 character limit) |
+| **One-click Copy** | Copy the optimized prompt to clipboard instantly |
+| **Character Count** | Shows how many characters the optimized prompt contains |
+| **Cinematic Intro Scene** | Three.js particle dust + ambient glow + GSAP typewriter animation |
+| **Animated Sky Background** | AI-generated photorealistic sky with GSAP Ken Burns motion |
+| **Custom Favicon** | SVG favicon with gradient branding |
+| **Fully Responsive** | Works across desktop, tablet, and mobile |
 
 ---
 
@@ -29,12 +39,14 @@ A cinematic **typewriter intro scene** greets users on load, followed by a full-
 
 | Layer | Technology |
 |---|---|
-| **Framework** | [TanStack Start](https://tanstack.com/start) (React 19 + Vite) |
-| **Styling** | Tailwind CSS |
+| **Framework** | [TanStack Start](https://tanstack.com/start) (React 19 + Vite 7) |
+| **Styling** | Tailwind CSS v4 |
+| **UI Components** | [shadcn/ui](https://ui.shadcn.com/) (Radix UI primitives) |
 | **Routing** | TanStack Router (file-based) |
-| **3D / Animation** | [Three.js](https://threejs.org/) + [GSAP](https://gsap.com/) |
+| **3D / Animation** | [Three.js r184](https://threejs.org/) + [GSAP 3](https://gsap.com/) |
 | **Backend** | [Supabase Edge Functions](https://supabase.com/docs/guides/functions) (Deno runtime) |
 | **AI Model** | Google Gemini (`google/gemini-3-flash-preview`) |
+| **Language** | TypeScript |
 | **Package Manager** | npm |
 
 ---
@@ -42,25 +54,34 @@ A cinematic **typewriter intro scene** greets users on load, followed by a full-
 ## 📁 Project Structure
 
 ```
-prompt-whisperer-469-main/
+prompt-polish/
 ├── public/
-│   └── sky-bg.png              # AI-generated sky background image
+│   ├── sky-bg.png              # AI-generated sky background image
+│   └── favicon.svg             # SVG favicon (gradient "P" logo)
 ├── src/
 │   ├── components/
 │   │   ├── IntroScene.tsx      # Three.js + GSAP intro animation
-│   │   └── SkyBackground.tsx  # Animated sky background (GSAP Ken Burns)
+│   │   ├── SkyBackground.tsx   # Animated sky background (GSAP Ken Burns)
+│   │   └── ui/                 # shadcn/ui component library
+│   ├── hooks/
+│   │   └── use-mobile.tsx      # Responsive breakpoint hook
 │   ├── integrations/
 │   │   └── supabase/           # Supabase client, server, auth middleware
+│   ├── lib/
+│   │   └── utils.ts            # Utility helpers
 │   ├── routes/
-│   │   ├── __root.tsx          # Root layout with intro scene gate
+│   │   ├── __root.tsx          # Root layout with head config & intro gate
 │   │   └── index.tsx           # Main application page
-│   └── styles.css              # Global styles
+│   ├── routeTree.gen.ts        # Auto-generated by TanStack Router (do not edit)
+│   └── styles.css              # Global styles & Tailwind base
 ├── supabase/
 │   └── functions/
 │       └── optimize-prompt/
 │           └── index.ts        # Edge function: AI prompt optimization
 ├── package.json
 ├── vite.config.ts
+├── tsconfig.json
+├── LICENSE
 └── README.md
 ```
 
@@ -72,14 +93,14 @@ prompt-whisperer-469-main/
 
 - **Node.js** v18+
 - **npm** v9+
-- A **Supabase** project with Edge Functions enabled
-- An AI API key (for the Gemini gateway)
+- A [**Supabase**](https://supabase.com/) project with Edge Functions enabled
+- A **Google Gemini** API key
 
 ### 1. Clone & Install
 
 ```bash
-git clone <your-repo-url>
-cd prompt-whisperer-469-main
+git clone https://github.com/Muskanchetri24/prompt-polish.git
+cd prompt-polish
 npm install
 ```
 
@@ -92,10 +113,10 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 ```
 
-For the Edge Function, set secrets via Supabase CLI:
+For the Edge Function, set the Gemini API key as a Supabase secret:
 
 ```bash
-supabase secrets set AI_API_KEY=your-ai-api-key
+supabase secrets set AI_API_KEY=your-gemini-api-key
 ```
 
 ### 3. Run Locally
@@ -104,7 +125,7 @@ supabase secrets set AI_API_KEY=your-ai-api-key
 npm run dev
 ```
 
-Open [http://localhost:8080](http://localhost:8080)
+Open [http://localhost:8080](http://localhost:8080) in your browser.
 
 ### 4. Deploy Edge Function
 
@@ -116,20 +137,21 @@ supabase functions deploy optimize-prompt
 
 ## 🧠 How It Works
 
-1. User pastes a rough prompt and selects a category
-2. The app validates length (10–2500 characters)
-3. On submit, the prompt is sent to the `optimize-prompt` Supabase Edge Function
-4. The Edge Function calls the Gemini API with a carefully crafted system prompt that instructs the model to rewrite as **natural, professional prose** — no template headers like "Role:", "Context:", "Task:"
-5. The optimized prompt is displayed with a character count and one-click copy button
+1. User pastes a rough prompt and selects a **category** (General, Coding, Creative, Research, Business)
+2. The app validates the input length (10–2500 characters)
+3. On submit, the prompt is sent to the `optimize-prompt` **Supabase Edge Function**
+4. The Edge Function calls the **Gemini API** with a carefully crafted system instruction to rewrite the prompt as **natural, professional prose** — no template headers like "Role:", "Context:", "Task:"
+5. The optimized prompt is returned and displayed with a **character count** and **one-click copy** button
 
 ---
 
 ## 🎨 Design Highlights
 
-- **Intro Scene**: Three.js particle dust + ambient glow + GSAP typewriter effect with blinking cursor and progress bar
-- **Sky Background**: AI-generated photorealistic cumulus cloud image animated with GSAP Ken Burns (scale + pan, no seam)
-- **Glassmorphism UI**: White cards with `backdrop-blur` sitting over the sky
-- **Header text**: White with `drop-shadow` for readability against the sky
+- **Intro Scene** — Three.js particle dust + ambient glow + GSAP typewriter effect with a blinking cursor and animated progress bar
+- **Sky Background** — AI-generated photorealistic cumulus cloud image animated with GSAP Ken Burns (smooth scale + pan, no seams)
+- **Glassmorphism UI** — White cards with `backdrop-blur` and soft shadows floating over the animated sky
+- **Typography** — White header text with `drop-shadow` for crisp readability against the sky
+- **Favicon** — Custom SVG with a blue gradient "P" matching the app's color palette
 
 ---
 
@@ -137,12 +159,14 @@ supabase functions deploy optimize-prompt
 
 The AI is instructed to:
 
-- ✅ Write as flowing, natural prose — no section headers
-- ✅ Be specific and actionable
-- ✅ Preserve the user's original intent
-- ✅ Embed context naturally within the prose
-- ❌ No "Role:", "Context:", "Task:" labels
-- ❌ No meta-commentary or preamble
+| Rule | Description |
+|---|---|
+| ✅ Natural prose | Write as flowing, professional sentences — no bullet headers |
+| ✅ Be specific | Include concrete details and actionable steps |
+| ✅ Preserve intent | Keep the user's original goal intact |
+| ✅ Embed context | Weave in context naturally within the prose |
+| ❌ No labels | No "Role:", "Context:", "Task:" template markers |
+| ❌ No preamble | No meta-commentary like "Here is your improved prompt:" |
 
 ---
 
@@ -150,16 +174,20 @@ The AI is instructed to:
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start development server on port 8080 |
+| `npm run dev` | Start development server (default port 8080) |
 | `npm run build` | Build production bundle |
+| `npm run preview` | Preview production build locally |
 | `npm run lint` | Run ESLint |
+| `npm run format` | Run Prettier formatter |
 
 ---
 
 ## 📄 License
 
-MIT — feel free to use, modify, and distribute.
+This project is licensed under the [MIT License](./LICENSE) — feel free to use, modify, and distribute.
 
 ---
 
-<p align="center">Built with ❤️ · Powered by Google Gemini · Animated with Three.js & GSAP</p>
+<p align="center">
+  Built with ❤️ by <a href="https://github.com/Muskanchetri24">Muskan Chetri</a> · Powered by Google Gemini · Animated with Three.js & GSAP
+</p>
