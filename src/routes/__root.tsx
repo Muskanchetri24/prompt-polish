@@ -101,6 +101,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: React.ReactNode }) {
+  if (typeof window !== "undefined") {
+    // On the client, simply return the app content without the HTML shell
+    // This prevents rendering <html> and <body> inside <div id="root">, which breaks React events.
+    return <>{children}</>;
+  }
+
+  // On the server, render the full HTML document
   return (
     <html lang="en">
       <head>
