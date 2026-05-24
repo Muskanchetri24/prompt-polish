@@ -113,6 +113,52 @@ export default function WeatherCanvas({ weather }: Props) {
       for (let i = 0; i < MAX_FOG; i++) fog.push(spawnFog(W, H));
     }
 
+    // ── Pre-render Offscreen Canvases for Performance ───────────────────
+    const createCachedCanvas = (size: number, draw: (ctx: CanvasRenderingContext2D, s: number) => void) => {
+      const c = document.createElement("canvas");
+      c.width = size;
+      c.height = size;
+      draw(c.getContext("2d")!, size);
+      return c;
+    };
+
+    const starCache = createCachedCanvas(16, (ctx, size) => {
+      const center = size / 2;
+      const grd = ctx.createRadialGradient(center, center, 0, center, center, center);
+      grd.addColorStop(0, "rgba(255,255,255,1)");
+      grd.addColorStop(0.4, "rgba(200,220,255,0.6)");
+      grd.addColorStop(1, "rgba(160,180,255,0)");
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(center, center, center, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    const snowCache = createCachedCanvas(24, (ctx, size) => {
+      const center = size / 2;
+      const grd = ctx.createRadialGradient(center, center, 0, center, center, center);
+      grd.addColorStop(0, "rgba(255,255,255,1)");
+      grd.addColorStop(0.6, "rgba(220,235,255,0.8)");
+      grd.addColorStop(1, "rgba(200,220,255,0)");
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(center, center, center, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Fog uses two caches since color changes based on dust/mist
+    const fogColor = condition === "dust" ? "rgba(200,160,100," : "rgba(200,210,230,";
+    const fogCache = createCachedCanvas(256, (ctx, size) => {
+      const center = size / 2;
+      const grd = ctx.createRadialGradient(center, center, 0, center, center, center);
+      grd.addColorStop(0, fogColor + "1)");
+      grd.addColorStop(1, fogColor + "0)");
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(center, center, center, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
     // ── RAF loop ──────────────────────────────────────────────────────────
     function tick(now: number) {
       rafRef.current = requestAnimationFrame(tick);
@@ -130,18 +176,10 @@ export default function WeatherCanvas({ weather }: Props) {
           const t = s.life / s.maxLife;
           const tw = Math.sin(t * Math.PI * 2) * 0.5 + 0.5;
           const a = s.alpha * (0.5 + tw * 0.5);
-          ctx.save();
+          
           ctx.globalAlpha = a;
-          // star glow
-          const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size * 2.5);
-          grd.addColorStop(0,   "rgba(255,255,255,1)");
-          grd.addColorStop(0.4, "rgba(200,220,255,0.6)");
-          grd.addColorStop(1,   "rgba(160,180,255,0)");
-          ctx.fillStyle = grd;
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.size * 2.5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          const r = s.size * 2.5;
+          ctx.drawImage(starCache, s.x - r, s.y - r, r * 2, r * 2);
         });
       }
 
@@ -151,6 +189,7 @@ export default function WeatherCanvas({ weather }: Props) {
         while (rain.length < target) rain.push(spawnRain(W, windSpeed));
 
         const speedMul = dt / 16.67;
+        ctx.beginPath();
         rain.forEach((r, i) => {
           r.x += r.vx * speedMul;
           r.y += r.vy * speedMul;
@@ -159,6 +198,7 @@ export default function WeatherCanvas({ weather }: Props) {
             return;
           }
           const len = r.size * (r.vy * 0.9);
+          
           ctx.save();
           ctx.globalAlpha = r.alpha * (0.5 + r.z * 0.5);
           ctx.strokeStyle = r.z > 0.5 ? "rgba(180,210,240,0.85)" : "rgba(130,170,210,0.5)";
@@ -196,17 +236,10 @@ export default function WeatherCanvas({ weather }: Props) {
             return;
           }
           const depth = 0.4 + s.z * 0.6;
-          ctx.save();
+          
           ctx.globalAlpha = s.alpha * depth;
-          const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size);
-          grd.addColorStop(0, "rgba(255,255,255,1)");
-          grd.addColorStop(0.6,"rgba(220,235,255,0.8)");
-          grd.addColorStop(1, "rgba(200,220,255,0)");
-          ctx.fillStyle = grd;
-          ctx.beginPath();
-          ctx.arc(s.x, s.y, s.size * depth, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          const r = s.size * depth;
+          ctx.drawImage(snowCache, s.x - r, s.y - r, r * 2, r * 2);
         });
       }
 
@@ -223,17 +256,9 @@ export default function WeatherCanvas({ weather }: Props) {
             fog[i] = spawnFog(W, H);
             return;
           }
-          ctx.save();
+          
           ctx.globalAlpha = f.alpha * envelope;
-          const color = condition === "dust" ? "rgba(200,160,100," : "rgba(200,210,230,";
-          const grd = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.size);
-          grd.addColorStop(0, color + "1)");
-          grd.addColorStop(1, color + "0)");
-          ctx.fillStyle = grd;
-          ctx.beginPath();
-          ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          ctx.drawImage(fogCache, f.x - f.size, f.y - f.size, f.size * 2, f.size * 2);
         });
       }
 
