@@ -15,22 +15,18 @@ const assets  = readdirSync(assetsDir);
 const cssFile  = assets.find((f) => f.endsWith(".css"));
 
 // The client entry is the index-*.js that is NOT the chunk file
+// Since Vite chunks can be larger than the entry point, we simply include all index JS files.
+// The browser's ES module resolution will figure out the dependency order automatically.
 const jsFiles  = assets.filter((f) => f.startsWith("index-") && f.endsWith(".js"));
-// Pick the larger one — it's the real entry (the other may be a tiny stub)
-const mainJs   = jsFiles.sort((a, b) => {
-  const sa = readFileSync(join(assetsDir, a)).length;
-  const sb = readFileSync(join(assetsDir, b)).length;
-  return sb - sa;
-})[0];
 
-if (!mainJs) {
+if (jsFiles.length === 0) {
   console.error("Could not find built JS entry in dist/client/assets/");
   console.log("Assets found:", assets);
   process.exit(1);
 }
 
 console.log(`📦  CSS  : ${cssFile ? `/assets/${cssFile}` : "(none)"}`);
-console.log(`📦  JS   : /assets/${mainJs}`);
+console.log(`📦  JS   : ${jsFiles.map(f => `/assets/${f}`).join(", ")}`);
 
 // TanStack Start with shellComponent: RootShell renders the whole <html> tree.
 // The client runtime calls StartClient which bootstraps into document.body directly.
@@ -49,7 +45,7 @@ const html = `<!DOCTYPE html>
     <script>window.__TSR_DEHYDRATED__={}</script>
   </head>
   <body>
-    <script type="module" src="/assets/${mainJs}"></script>
+    ${jsFiles.map(f => `<script type="module" src="/assets/${f}"></script>`).join('\n    ')}
   </body>
 </html>
 `;
