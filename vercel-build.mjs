@@ -53,6 +53,7 @@ const html = `<!DOCTYPE html>
     </script>
   </head>
   <body>
+    <div id="root"></div>
     ${jsFiles.map(f => `<script type="module" src="/assets/${f}"></script>`).join('\n    ')}
   </body>
 </html>
