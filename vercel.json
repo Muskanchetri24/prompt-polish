@@ -1,7 +1,14 @@
 {
+  "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "dist/client",
+  "installCommand": "npm install",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "env": {
+    "VITE_SUPABASE_URL": "@vite_supabase_url",
+    "VITE_SUPABASE_PUBLISHABLE_KEY": "@vite_supabase_publishable_key",
+    "VITE_OPENWEATHER_API_KEY": "@vite_openweather_api_key"
+  }
 }
