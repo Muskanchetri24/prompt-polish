@@ -13,9 +13,12 @@ function createSupabaseClient() {
       ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
       ...(!SUPABASE_PUBLISHABLE_KEY ? ['SUPABASE_PUBLISHABLE_KEY'] : []),
     ];
-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Please set them in your .env file.`;
+    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Please set them in your Vercel Environment Variables.`;
     console.error(`[Supabase] ${message}`);
-    throw new Error(message);
+    // Return a dummy client so the app doesn't crash on load, but will fail gracefully if it tries to fetch.
+    return createClient<Database>("https://dummy.supabase.co", "dummy-key", {
+      auth: { persistSession: false }
+    });
   }
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
