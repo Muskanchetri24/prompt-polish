@@ -8,7 +8,9 @@ const queryClient = new QueryClient();
 const router = createRouter({ routeTree, context: { queryClient } });
 
 const rootElement = document.getElementById("root");
-if (rootElement && !rootElement.innerHTML) {
+if (rootElement) {
+  // Clear any SSR-rendered content (used for the local dev server) before mounting the SPA
+  rootElement.innerHTML = "";
   createRoot(rootElement).render(
     <StrictMode>
       <RouterProvider router={router} />
