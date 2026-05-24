@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // vercel-build.mjs
-// Runs after `vite build` to produce index.html in dist/client
-// so Vercel can serve the app as a static SPA.
+// Post-build: generates dist/client/index.html for Vercel static hosting.
+// TanStack Start with shellComponent renders the full <html> from JS,
+// so we emit the minimal "dehydration shell" it expects on the client.
 
 import { readFileSync, writeFileSync, readdirSync } from "fs";
 import { join } from "path";
@@ -9,32 +10,45 @@ import { join } from "path";
 const clientDir = "dist/client";
 const assetsDir = join(clientDir, "assets");
 
-// Find the CSS and main JS entry from built assets
-const assets = readdirSync(assetsDir);
+// Find built CSS and JS entry from hashed filenames
+const assets  = readdirSync(assetsDir);
 const cssFile  = assets.find((f) => f.endsWith(".css"));
-const mainJs   = assets.find((f) => f.startsWith("index-") && f.endsWith(".js"));
 
-if (!cssFile || !mainJs) {
-  console.error("Could not find built CSS or JS in dist/client/assets/");
+// The client entry is the index-*.js that is NOT the chunk file
+const jsFiles  = assets.filter((f) => f.startsWith("index-") && f.endsWith(".js"));
+// Pick the larger one — it's the real entry (the other may be a tiny stub)
+const mainJs   = jsFiles.sort((a, b) => {
+  const sa = readFileSync(join(assetsDir, a)).length;
+  const sb = readFileSync(join(assetsDir, b)).length;
+  return sb - sa;
+})[0];
+
+if (!mainJs) {
+  console.error("Could not find built JS entry in dist/client/assets/");
   console.log("Assets found:", assets);
   process.exit(1);
 }
 
-console.log(`📦  CSS  : /assets/${cssFile}`);
+console.log(`📦  CSS  : ${cssFile ? `/assets/${cssFile}` : "(none)"}`);
 console.log(`📦  JS   : /assets/${mainJs}`);
 
+// TanStack Start with shellComponent: RootShell renders the whole <html> tree.
+// The client runtime calls StartClient which bootstraps into document.body directly.
+// We must NOT include a <body> or <div id="root"> — the framework owns the DOM.
+// We also inject window.__TSR_DEHYDRATED__ = {} so the invariant check passes
+// (it just needs the key to exist, even empty, when there's no server-rendered state).
 const html = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PromptPolish — AI Prompt Optimizer</title>
+    <title>PromptPolish \u2014 AI Prompt Optimizer</title>
     <meta name="description" content="Transform vague prompts into detailed, AI-optimized instructions. Ready to paste into ChatGPT, Claude, Gemini, and any LLM." />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="/assets/${cssFile}" />
+    ${cssFile ? `<link rel="stylesheet" href="/assets/${cssFile}" />` : ""}
+    <script>window.__TSR_DEHYDRATED__={}</script>
   </head>
   <body>
-    <div id="root"></div>
     <script type="module" src="/assets/${mainJs}"></script>
   </body>
 </html>
