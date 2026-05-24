@@ -43,6 +43,14 @@ const html = `<!DOCTYPE html>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     ${cssFile ? `<link rel="stylesheet" href="/assets/${cssFile}" />` : ""}
     <script>window.__TSR_DEHYDRATED__={}</script>
+    <script>
+      window.addEventListener('error', (event) => {
+        document.body.innerHTML += '<div style="color:red; background:white; padding:20px; z-index:999999; position:absolute; top:0; left:0; width:100%;">' + event.error.stack + '</div>';
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        document.body.innerHTML += '<div style="color:red; background:white; padding:20px; z-index:999999; position:absolute; top:0; left:0; width:100%;">Unhandled Rejection: ' + event.reason + '</div>';
+      });
+    </script>
   </head>
   <body>
     ${jsFiles.map(f => `<script type="module" src="/assets/${f}"></script>`).join('\n    ')}
