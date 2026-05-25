@@ -104,15 +104,18 @@ export function useWeather(): WeatherState {
 
   const fetchWeather = useCallback(async (lat: number, lon: number) => {
     if (!API_KEY) {
-      // No API key — return a mock based on time of day so visuals still work
-      const now = Date.now() / 1000;
-      const sunrise = Math.floor(now / 86400) * 86400 + 6 * 3600;
-      const sunset  = Math.floor(now / 86400) * 86400 + 18 * 3600;
-      const isNight = now < sunrise || now > sunset;
+      // No API key — return a mock based on local time of day so visuals still work
+      const nowTs = Math.floor(Date.now() / 1000);
+      const d = new Date();
+      // Calculate local midnight timestamp in seconds
+      const localMidnightTs = nowTs - (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds());
+      const sunrise = localMidnightTs + 6 * 3600; // 6:00 AM local time
+      const sunset  = localMidnightTs + 18 * 3600; // 6:00 PM local time
+      const isNight = nowTs < sunrise || nowTs > sunset;
       setState({
         ...DEFAULT_STATE,
         condition: isNight ? "clear" : "sunny",
-        phase: getPhase(now, sunrise, sunset),
+        phase: getPhase(nowTs, sunrise, sunset),
         isNight,
         sunrise,
         sunset,
