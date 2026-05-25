@@ -83,19 +83,21 @@ OUTPUT RULES (STRICT):
 - Preserve the user's original intent — never invent unrelated requirements.
 - If the user's prompt is already well-formed, still enhance it with missing precision and structure.`;
 
-    const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AI_API_KEY}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${AI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gemini-1.5-flash",
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: prompt },
+        systemInstruction: {
+          parts: [{ text: system }]
+        },
+        contents: [
+          { parts: [{ text: prompt }] }
         ],
-        temperature: 0.4,
+        generationConfig: {
+          temperature: 0.4
+        }
       }),
     });
 
@@ -118,7 +120,7 @@ OUTPUT RULES (STRICT):
     }
 
     const data = await resp.json();
-    const optimized = data.choices?.[0]?.message?.content ?? "";
+    const optimized = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
     return new Response(JSON.stringify({ optimized }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
