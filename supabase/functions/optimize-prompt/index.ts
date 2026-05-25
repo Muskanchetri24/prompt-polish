@@ -83,7 +83,7 @@ OUTPUT RULES (STRICT):
 - Preserve the user's original intent — never invent unrelated requirements.
 - If the user's prompt is already well-formed, still enhance it with missing precision and structure.`;
 
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AI_API_KEY}`, {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${AI_API_KEY}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
