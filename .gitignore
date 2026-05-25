@@ -34,3 +34,5 @@ dist-ssr
 
 # Vite dev cache
 .vite/
+.vercel
+.env*

@@ -83,14 +83,14 @@ OUTPUT RULES (STRICT):
 - Preserve the user's original intent — never invent unrelated requirements.
 - If the user's prompt is already well-formed, still enhance it with missing precision and structure.`;
 
-    const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const resp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${AI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "gemini-1.5-flash",
         messages: [
           { role: "system", content: system },
           { role: "user", content: prompt },
