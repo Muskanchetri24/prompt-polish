@@ -17,11 +17,17 @@ function getBaseImage(phase: DayPhase, isNight: boolean, condition: WeatherCondi
 function getPhotoOpacity(condition: WeatherCondition, phase: DayPhase, isNight: boolean): number {
   if (isNight || phase === "midnight") return 0.92;
   if (phase === "dusk" || phase === "dawn") return 0.88;
-  if (["sunny","clear"].includes(condition)) return 0.96;
-  if (condition === "partly-cloudy") return 0.80;
-  if (condition === "windy") return 0.65;
-  if (condition === "cloudy") return 0.30;
-  return 0; // rain/storm/snow/fog → gradient only
+  
+  let baseOpacity = 0;
+  if (["sunny","clear"].includes(condition)) baseOpacity = 0.96;
+  else if (condition === "partly-cloudy") baseOpacity = 0.80;
+  else if (condition === "windy") baseOpacity = 0.65;
+  else if (condition === "cloudy") baseOpacity = 0.30;
+  
+  // Let the gradient shine through during morning/afternoon for color warmth
+  if (phase === "morning" || phase === "afternoon") return baseOpacity * 0.45;
+  
+  return baseOpacity; // noon gets full opacity
 }
 
 // ─── Gradient fallback palette (top → mid → bottom) ──────────────────────────
