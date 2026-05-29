@@ -19,7 +19,8 @@ function getPhotoOpacity(condition: WeatherCondition, phase: DayPhase, isNight: 
   if (phase === "dusk" || phase === "dawn") return 0.88;
   
   let baseOpacity = 0;
-  if (["sunny","clear"].includes(condition)) baseOpacity = 0.96;
+  // Reduce base opacity for sunny so the clear blue gradient shines through more
+  if (["sunny","clear"].includes(condition)) baseOpacity = 0.55;
   else if (condition === "partly-cloudy") baseOpacity = 0.80;
   else if (condition === "windy") baseOpacity = 0.65;
   else if (condition === "cloudy") baseOpacity = 0.30;
@@ -142,6 +143,7 @@ const OVERLAY: Record<string, string> = {
 interface CloudCfg { count: number; opacity: number; blur: number; speed: number; yRange:[number,number]; color: string }
 function getCloudConfig(condition: WeatherCondition, isNight: boolean): CloudCfg {
   const n = isNight;
+  if (condition === "clear" || condition === "sunny") return { count: 0, opacity: 0, blur: 0, speed: 0, yRange: [0,0], color: "rgba(0,0,0,0" };
   if (condition === "thunderstorm") return { count:9,  opacity:0.90, blur:22, speed:0.40, yRange:[0,48],  color:"rgba(15,18,28," };
   if (condition === "rain")         return { count:8,  opacity:0.80, blur:16, speed:0.25, yRange:[0,38],  color:"rgba(30,40,55," };
   if (condition === "drizzle")      return { count:7,  opacity:0.68, blur:12, speed:0.20, yRange:[0,42],  color:"rgba(45,55,70," };
@@ -178,6 +180,7 @@ export default function WeatherBackground() {
   const cloudRef    = useRef<HTMLCanvasElement>(null);
   const overlayRef  = useRef<HTMLDivElement>(null);
   const godraysRef  = useRef<HTMLDivElement>(null);
+  const shimmerRef  = useRef<HTMLDivElement>(null);
 
   // Track previous image to crossfade properly
   const prevImgRef   = useRef<string | null>(null);
@@ -244,6 +247,15 @@ export default function WeatherBackground() {
     });
     return () => tls.forEach((t) => t.kill());
   }, [weather.loading]);
+
+  // ── Sun Rays Shimmer Effect ────────────────────────────────────────────────
+  useEffect(() => {
+    if (!shimmerRef.current) return;
+    const tl = gsap.timeline({ repeat: -1, yoyo: true });
+    tl.to(shimmerRef.current, { opacity: 0.6, scale: 1.05, duration: 3.5, ease: "sine.inOut" })
+      .to(shimmerRef.current, { opacity: 1, scale: 1, duration: 3.5, ease: "sine.inOut" });
+    return () => { tl.kill(); };
+  }, []);
 
   // ── Animated cloud canvas ──────────────────────────────────────────────────
   useEffect(() => {
@@ -365,9 +377,14 @@ export default function WeatherBackground() {
       <div ref={godraysRef} style={{
         position:"absolute", inset:0,
         opacity:0,
-        background:`radial-gradient(ellipse 55% 70% at ${godraysX}% ${godraysY}%,${godraysColor} 0%,rgba(255,200,80,0.06) 45%,transparent 70%)`,
         mixBlendMode:"screen",
-      }} />
+      }}>
+        <div ref={shimmerRef} style={{
+          position:"absolute", inset:0,
+          background:`radial-gradient(ellipse 55% 70% at ${godraysX}% ${godraysY}%,${godraysColor} 0%,rgba(255,200,80,0.06) 45%,transparent 70%)`,
+          transformOrigin: `${godraysX}% ${godraysY}%`,
+        }} />
+      </div>
 
       {/* ⑥ Volumetric cloud canvas */}
       <canvas ref={cloudRef} style={{

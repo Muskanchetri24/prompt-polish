@@ -104,7 +104,7 @@ OUTPUT RULES (STRICT):
       }
       const t = await resp.text();
       console.error("Gateway error", resp.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
+      return new Response(JSON.stringify({ error: `AI gateway error (${resp.status}): ${t}` }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

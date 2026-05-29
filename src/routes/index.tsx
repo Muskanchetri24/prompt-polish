@@ -339,7 +339,7 @@ function Index() {
                   borderRadius: 12,
                   fontSize: 14, fontWeight: 600,
                   color: "white",
-                  background: loading
+                  backgroundImage: loading
                     ? "linear-gradient(135deg,#7c3aed,#6d28d9)"
                     : "linear-gradient(135deg,#4f46e5 0%,#7c3aed 60%,#a855f7 100%)",
                   backgroundSize: "200% auto",
@@ -401,7 +401,7 @@ function Index() {
                   <div key={i} style={{
                     height: 12, borderRadius: 6, marginBottom: 12,
                     width: `${w}%`,
-                    background: "linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%)",
+                    backgroundImage: "linear-gradient(90deg,#e2e8f0 25%,#f1f5f9 50%,#e2e8f0 75%)",
                     backgroundSize: "200% auto",
                     animation: `shimmer 1.5s ${i * 0.15}s linear infinite`,
                   }} />
