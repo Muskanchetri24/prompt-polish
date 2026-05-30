@@ -73,9 +73,9 @@ function owmIdToCondition(id: number, isNight: boolean): WeatherCondition {
   if (id === 721 || id === 731 || id === 751 || id === 761 || id === 762) return "dust";
   if (id >= 700 && id < 800) return "fog";
   if (id === 800) return isNight ? "clear" : "sunny";
-  if (id === 801) return "partly-cloudy";
-  if (id === 802 || id === 803) return "cloudy";
-  if (id === 804) return "cloudy";
+  if (id === 801) return isNight ? "clear" : "sunny"; // Few clouds still feels sunny/clear
+  if (id === 802 || id === 803) return "partly-cloudy"; // Scattered/Broken clouds
+  if (id === 804) return "cloudy"; // Overcast
   return "unknown";
 }
 
